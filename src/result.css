@@ -1,0 +1,62 @@
+.result-page { max-width: 1600px; margin: auto; padding-bottom: 65px; }
+.result-body { width: 92%; margin: auto; }
+.result-intro { display: flex; justify-content: space-between; align-items: center; margin: 45px 0 22px; }
+.result-intro .eyebrow { margin: 0; }
+.result-intro > span { font-size: 12px; color: #777; letter-spacing: .1em; }
+.result-hero { display: flex; justify-content: space-between; align-items: end; border-top: 1px solid #242424; border-bottom: 1px solid #bcbcb7; padding: 24px 0 28px; gap: 35px; }
+.result-type-number { font-size: 16px; letter-spacing: .2em; margin: 0 0 12px; }
+.result-hero h1 { font-size: clamp(55px, 8vw, 120px); font-weight: 500; letter-spacing: -.08em; line-height: 1; margin: 0; }
+.result-english { font-size: clamp(16px, 2vw, 26px); letter-spacing: .19em; margin: 14px 0 0; }
+.result-secondary { text-align: right; min-width: 215px; padding-bottom: 8px; }
+.result-secondary span, .result-secondary small { display: block; font-size: 11px; color: #777; letter-spacing: .08em; }
+.result-secondary strong { display: block; font-size: 28px; font-weight: 500; margin: 13px 0 4px; }
+.result-keywords { display: flex; align-items: baseline; gap: 35px; padding-top: 25px; }
+.result-keywords span { font-size: 11px; color: #777; letter-spacing: .08em; }
+.result-keywords p { font-size: 18px; margin: 0; }
+.result-description { font-size: 18px; line-height: 1.85; max-width: 780px; margin: 28px 0 9px; }
+.result-method-note { font-size: 11px; color: #888; margin: 0 0 46px; }
+.result-analysis { display: grid; grid-template-columns: minmax(250px, .7fr) minmax(0, 1.3fr); gap: 55px; }
+.result-section-heading { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid #242424; padding: 13px 0 20px; font-size: 14px; }
+.result-section-heading small { font-size: 10px; color: #888; letter-spacing: .1em; }
+.result-metric { display: grid; grid-template-columns: 1fr 55px; align-items: end; border-bottom: 1px solid #c8c8c3; padding: 10px 0 13px; gap: 8px; }
+.result-metric > span { font-size: 12px; letter-spacing: .08em; }
+.result-metric > span small { display: block; letter-spacing: 0; color: #888; font-size: 11px; margin-top: 5px; }
+.result-metric strong { font-size: 34px; font-weight: 400; text-align: right; line-height: 1; }
+.result-metric-line { grid-column: 1 / -1; background: #d3d3ce; height: 2px; }
+.result-metric-line i { display: block; height: 100%; background: #242424; }
+.result-visual .comparison-canvas { width: 100%; }
+.result-visual > p { font-size: 11px; color: #888; margin: 10px 0 0; }
+.ticket-section { margin-top: 65px; border-top: 1px solid #242424; }
+.ticket-heading { display: flex; justify-content: space-between; align-items: end; padding: 18px 0 26px; }
+.ticket-heading .eyebrow { margin: 0; color: #777; }
+.ticket-heading h2 { font-size: 34px; font-weight: 500; margin: 8px 0 0; }
+.ticket-swipe-hint { display: none; }
+.ticket-scroll { overflow-x: auto; }
+.order-ticket-svg { display: block; width: 100%; height: auto; min-width: 900px; }
+.result-footer-actions { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 25px 0 15px; }
+.restart-button { border: 1px solid #242424; background: #242424; color: white; display: inline-flex; justify-content: space-between; gap: 25px; min-width: 165px; padding: 12px 16px; }
+.restart-button:hover { background: #555; }
+
+@media (max-width: 850px) {
+  .result-analysis { grid-template-columns: 1fr; gap: 40px; }
+  .result-hero h1 { font-size: 12vw; }
+  .result-secondary { min-width: 165px; }
+  .result-secondary strong { font-size: 21px; }
+}
+
+@media (max-width: 600px) {
+  .result-body { width: 96%; }
+  .result-intro { margin-top: 28px; }
+  .result-hero { display: block; }
+  .result-hero h1 { font-size: 16vw; }
+  .result-secondary { text-align: left; margin-top: 25px; }
+  .result-keywords { display: block; }
+  .result-keywords p { margin-top: 8px; font-size: 16px; }
+  .result-description { font-size: 16px; }
+  .ticket-heading h2 { font-size: 25px; }
+  .ticket-swipe-hint { display: block; color: #888; font-size: 11px; margin: -12px 0 12px; }
+  .order-ticket-svg { min-width: 1000px; }
+  .result-footer-actions { flex-wrap: wrap; }
+  .result-footer-actions button { min-height: 44px; }
+  .restart-button { order: -1; width: 100%; }
+}
