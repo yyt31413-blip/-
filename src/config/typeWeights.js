@@ -39,8 +39,9 @@ export const typeWeights = {
       lowRegularity: 0.10,
       lowSpacingConsistency: 0.10,
     },
-    randomnessMidpoint: 50,
-    randomnessAdjustmentWeight: 0.20, // at most ±10 points around a 50-point midpoint
+    // Broad lack of strategy evidence is required before randomness raises TYPE 06.
+    randomnessMidpoint: 70,
+    randomnessAdjustmentWeight: 0.20,
   },
   confidence: {
     compositeBelow: 8,

@@ -23,6 +23,7 @@ export default function App() {
   const finishingRef = useRef(false)
   const selectedItem = items.find((item) => item.id === selectedId)
   const scores = useMemo(() => page === 'desk' ? calculateScores(items) : null, [items, page])
+  const classification = useMemo(() => page === 'desk' && scores ? classifyOrder(scores, { items }) : null, [items, page, scores])
   const translation = useMemo(() => page === 'desk' ? createVisualTranslation(items) : null, [items, page])
 
   // The result and a new round always begin at the top, even if the user finished below the fold.
@@ -80,7 +81,7 @@ export default function App() {
       orderId: createOrderId(),
       snapshot,
       scores,
-      classification: classifyOrder(scores, { items }),
+      classification,
       translation,
     })
     setPage('result')
@@ -109,7 +110,7 @@ export default function App() {
       <div className="experiment-heading"><div><p className="eyebrow">ARRANGE THE OBJECTS</p><h1>整理你的桌面<span className="heading-dot">.</span></h1></div><p>拖动物品调整位置，选中物品后可旋转。<br />物品可以重叠，排列没有标准答案。</p></div>
       <div className="experiment-layout">
         <Desk items={items} selectedId={selectedId} onChange={changeItem} onSelect={setSelectedId} />
-        <ScoringPanel scores={scores} />
+        <ScoringPanel scores={scores} classification={classification} />
       </div>
       <div className="controls">
         <div className="selection-controls"><span className="control-label">当前选中</span><strong>{selectedItem?.name ?? '请选择一件物品'}</strong><button disabled={!selectedItem} onClick={() => rotateSelected(-1)} aria-label="逆时针旋转15度">↶ <span>−15°</span></button><button disabled={!selectedItem} onClick={() => rotateSelected(1)} aria-label="顺时针旋转15度">↷ <span>+15°</span></button></div>
