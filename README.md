@@ -15,11 +15,11 @@ React + Vite 项目。运行 `npm install`、`npm run dev`；使用 `npm test` �
 | 增删文具、调整初始位置或类别 | `src/data/stationery.js` |
 | 文具在可拖动桌面上的临时图形 | `src/components/ItemArtwork.jsx` |
 | 桌面尺寸、中心、重叠和占据区域 | `src/utils/geometry.js` |
-| 文具图层顺序与上移、下移、置顶、置底 | `src/utils/layers.js` |
+| 点击或开始拖动时自动置顶、图层顺序规范化 | `src/utils/layers.js`、`src/App.jsx` |
 | 五项评分公式 | `src/utils/scoring.js` |
 | 评分阈值与权重 | `src/config/scoringConfig.js` |
 | 六种类型的名称与说明 | `src/data/orderTypes.js` |
-| 类型参考向量与权重 | `src/config/typeConfig.js` |
+| 类型匹配权重与 Confidence 阈值 | `src/config/typeWeights.js` |
 | 类型归类方法 | `src/utils/typeClassification.js` |
 | 文具到几何模块的映射、对齐辅助线 | `src/utils/visualTranslation.js` |
 | 几何模块的 SVG 绘制 | `src/components/TranslatedShape.jsx` |
@@ -27,6 +27,6 @@ React + Vite 项目。运行 `npm install`、`npm run dev`；使用 `npm test` �
 | 桌面指针交互 | `src/components/Desk.jsx`、`src/components/DeskItem.jsx` |
 | 结果页与票据排版 | `src/components/ResultPage.jsx`、`src/components/OrderTicket.jsx` |
 
-新增文具时先在 `stationery.js` 添加唯一 `id`、`name`、`category`、几何数据和初始 `zIndex`。初始层级会自动整理为从底到顶的连续编号。未定制图形的物品会使用默认矩形；需要专属图形时，再在 `ItemArtwork.jsx`、`visualTranslation.js` 和 `TranslatedShape.jsx` 中增加对应规则。五项评分按当前物品数组计算，不依赖固定的十件物品；图层变化不会改变评分。
+新增文具时先在 `stationery.js` 添加唯一 `id`、`name`、`category`、几何数据和初始 `zIndex`。初始层级会自动整理为从底到顶的连续编号。点击或开始拖动文具会自动置顶；重置和重新测试会恢复初始层级。未定制图形的物品会使用默认矩形；需要专属图形时，再在 `ItemArtwork.jsx`、`visualTranslation.js` 和 `TranslatedShape.jsx` 中增加对应规则。五项基础评分按当前物品数组计算，不依赖固定的十件物品；遮挡可能影响 Access 指标及功能效率型匹配分。
 
 当前类型参考向量与评分阈值是实验参数，后续应依据真实问卷、访谈和桌面实验数据校准。

@@ -21,16 +21,12 @@ export function normalizeLayers(items) {
   return assignContinuousLayers(items, getLayerOrder(items))
 }
 
-function moveTo(items, id, destination) {
+// Selecting an item moves it to the front without ever growing zIndex beyond
+// the number of desk items. Source array order and item geometry stay intact.
+export function bringToFront(items, id) {
   const ordered = getLayerOrder(items)
   const from = ordered.findIndex((item) => item.id === id)
   if (from < 0) return normalizeLayers(items)
-  const to = Math.min(ordered.length - 1, Math.max(0, destination(from, ordered.length)))
-  if (from !== to) ordered.splice(to, 0, ...ordered.splice(from, 1))
+  if (from !== ordered.length - 1) ordered.push(...ordered.splice(from, 1))
   return assignContinuousLayers(items, ordered)
 }
-
-export const moveLayerUp = (items, id) => moveTo(items, id, (from) => from + 1)
-export const moveLayerDown = (items, id) => moveTo(items, id, (from) => from - 1)
-export const bringToFront = (items, id) => moveTo(items, id, (_, count) => count - 1)
-export const sendToBack = (items, id) => moveTo(items, id, () => 0)

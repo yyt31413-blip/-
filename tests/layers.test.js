@@ -5,39 +5,37 @@ import { getFinalDeskState, doItemsOverlap } from '../src/utils/geometry.js'
 import { calculateScores } from '../src/utils/scoring.js'
 import { metrics } from '../src/data/metrics.js'
 import { createVisualTranslation } from '../src/utils/visualTranslation.js'
-import { normalizeLayers, moveLayerUp, moveLayerDown, bringToFront, sendToBack, getLayerOrder } from '../src/utils/layers.js'
+import { normalizeLayers, bringToFront, getLayerOrder } from '../src/utils/layers.js'
 
 const level = (items, id) => items.find((item) => item.id === id).zIndex
 const assertContinuous = (items) => assert.deepEqual(items.map((item) => item.zIndex).sort((a, b) => a - b), Array.from({ length: items.length }, (_, index) => index + 1))
 
-test('one-step controls swap only adjacent levels and remain bounded after repeated clicks', () => {
-  let items = moveLayerUp(initialItems, 'book')
-  assert.equal(level(items, 'book'), 4)
-  assert.equal(level(items, 'notebook'), 3)
-  assert.equal(level(items, 'phone'), 2)
-  items = moveLayerDown(items, 'book')
-  assert.equal(level(items, 'book'), 3)
-  for (let index = 0; index < 30; index += 1) items = moveLayerUp(items, 'book')
-  assert.equal(level(items, 'book'), items.length)
-  for (let index = 0; index < 30; index += 1) items = moveLayerDown(items, 'book')
-  assert.equal(level(items, 'book'), 1)
-  assertContinuous(items)
-  assert.deepEqual(items.map((item) => item.id), initialItems.map((item) => item.id))
-})
-
-test('front, back, and normalization keep unique consecutive levels', () => {
+test('selecting or starting a drag moves that item to the top with bounded layers', () => {
   let items = bringToFront(initialItems, 'phone')
-  assert.equal(level(items, 'phone'), 10)
+  assert.equal(level(items, 'phone'), items.length)
   assert.equal(getLayerOrder(items).at(-1).id, 'phone')
-  items = sendToBack(items, 'phone')
-  assert.equal(level(items, 'phone'), 1)
-  assert.equal(getLayerOrder(items)[0].id, 'phone')
-  assertContinuous(items)
+  assert.equal(bringToFront(items, 'phone'), items)
+  for (let index = 0; index < 40; index += 1) {
+    items = bringToFront(items, index % 2 ? 'phone' : 'book')
+    assertContinuous(items)
+  }
+  assert.equal(getLayerOrder(items).at(-1).id, 'phone')
+  assert.deepEqual(items.map((item) => item.id), initialItems.map((item) => item.id))
   const irregular = initialItems.map((item, index) => ({ ...item, zIndex: 100 + index * 5 }))
-  assertContinuous(normalizeLayers(irregular))
+  assertContinuous(bringToFront(irregular, 'laptop'))
 })
 
-test('layer-only edits preserve geometry, all five scores, and overlap results', () => {
+test('drag and rotation preserve the selected top layer until another item is selected', () => {
+  let items = bringToFront(initialItems, 'laptop')
+  items = items.map((item) => item.id === 'laptop' ? { ...item, x: 160, y: 120, rotation: 45 } : item)
+  assert.equal(level(items, 'laptop'), items.length)
+  assert.equal(getLayerOrder(items).at(-1).id, 'laptop')
+  items = bringToFront(items, 'book')
+  assert.equal(level(items, 'book'), items.length)
+  assert.equal(level(items, 'laptop'), items.length - 1)
+})
+
+test('automatic layer edits preserve geometry, five base scores, and overlap results', () => {
   const overlapped = initialItems.map((item) => ({ ...item }))
   overlapped[1].x = overlapped[0].x + 30
   overlapped[1].y = overlapped[0].y + 30
@@ -53,7 +51,7 @@ test('layer-only edits preserve geometry, all five scores, and overlap results',
   assert.equal(getFinalDeskState(changed).items[0].zIndex, 10)
 })
 
-test('translation order follows the saved levels through drag, rotation, and reset', () => {
+test('translation retains automatic layer order and a fresh test restores initial layers', () => {
   let items = bringToFront(initialItems, 'laptop')
   items = items.map((item) => item.id === 'laptop' ? { ...item, x: 160, y: 120, rotation: 45 } : item)
   let translated = createVisualTranslation(items)
@@ -65,4 +63,5 @@ test('translation order follows the saved levels through drag, rotation, and res
   translated = createVisualTranslation(items)
   assert.equal(translated.modules[0].id, 'laptop')
   assert.equal(translated.modules[0].zIndex, 1)
+  assert.deepEqual(items.map((item) => item.zIndex), initialItems.map((item) => item.zIndex))
 })

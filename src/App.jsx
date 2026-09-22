@@ -3,7 +3,6 @@ import Desk from './components/Desk.jsx'
 import ScoringPanel from './components/ScoringPanel.jsx'
 import ComparisonPreview from './components/ComparisonPreview.jsx'
 import ResultPage from './components/ResultPage.jsx'
-import LayerControls from './components/LayerControls.jsx'
 import LayerDebugPanel from './components/LayerDebugPanel.jsx'
 import { initialItems } from './data/stationery.js'
 import { clampItem, getFinalDeskState } from './utils/geometry.js'
@@ -11,7 +10,7 @@ import { calculateScores } from './utils/scoring.js'
 import { createVisualTranslation } from './utils/visualTranslation.js'
 import { classifyOrder } from './utils/typeClassification.js'
 import { createOrderId } from './utils/orderId.js'
-import { normalizeLayers, moveLayerUp, moveLayerDown, bringToFront, sendToBack } from './utils/layers.js'
+import { normalizeLayers, bringToFront } from './utils/layers.js'
 
 const freshItems = () => normalizeLayers(initialItems.map((item) => ({ ...item })))
 
@@ -39,6 +38,13 @@ export default function App() {
       next[index] = nextItem
       return next
     })
+  }
+
+  function selectItem(id) {
+    setSelectedId(id)
+    // Pointer down also covers the start of a drag; a later click is harmless
+    // because bringToFront returns the current state when this item is already on top.
+    setItems((current) => bringToFront(current, id))
   }
 
   function rotateSelected(direction) {
@@ -109,19 +115,14 @@ export default function App() {
       <header className="site-header"><button className="wordmark" onClick={returnHome}>齐与乱 <span>ORDER / DISORDER</span></button><span>桌面实验 / 01</span></header>
       <div className="experiment-heading"><div><p className="eyebrow">ARRANGE THE OBJECTS</p><h1>整理你的桌面<span className="heading-dot">.</span></h1></div><p>拖动物品调整位置，选中物品后可旋转。<br />物品可以重叠，排列没有标准答案。</p></div>
       <div className="experiment-layout">
-        <Desk items={items} selectedId={selectedId} onChange={changeItem} onSelect={setSelectedId} />
+        <Desk items={items} selectedId={selectedId} onChange={changeItem} onSelect={selectItem} />
         <ScoringPanel scores={scores} classification={classification} />
       </div>
       <div className="controls">
         <div className="selection-controls"><span className="control-label">当前选中</span><strong>{selectedItem?.name ?? '请选择一件物品'}</strong><button disabled={!selectedItem} onClick={() => rotateSelected(-1)} aria-label="逆时针旋转15度">↶ <span>−15°</span></button><button disabled={!selectedItem} onClick={() => rotateSelected(1)} aria-label="顺时针旋转15度">↷ <span>+15°</span></button></div>
         <div className="action-controls"><button className="text-button" onClick={resetDesk}>重置桌面</button><button className="finish-button" onClick={finishDesk}>完成我的桌面 <span aria-hidden="true">→</span></button></div>
       </div>
-      <LayerControls selectedItem={selectedItem} itemCount={items.length}
-        onUp={() => setItems((current) => moveLayerUp(current, selectedId))}
-        onDown={() => setItems((current) => moveLayerDown(current, selectedId))}
-        onFront={() => setItems((current) => bringToFront(current, selectedId))}
-        onBack={() => setItems((current) => sendToBack(current, selectedId))} />
-      <LayerDebugPanel items={items} selectedId={selectedId} onSelect={setSelectedId} />
+      <LayerDebugPanel items={items} selectedId={selectedId} />
       <ComparisonPreview items={items} translation={translation} />
     </main>
   )
