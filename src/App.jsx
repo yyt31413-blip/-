@@ -115,7 +115,7 @@ export default function App() {
       <div className="experiment-heading"><div><p className="eyebrow">ARRANGE THE OBJECTS</p><h1>整理你的桌面<span className="heading-dot">.</span></h1></div><p>拖动物品调整位置，选中物品后可旋转。<br />物品可以重叠，排列没有标准答案。</p></div>
       <div className="experiment-layout">
         <Desk items={items} selectedId={selectedId} onChange={changeItem} onSelect={selectItem} />
-        <ScoringPanel scores={scores} classification={classification} />
+        <ScoringPanel scores={scores} />
       </div>
       <div className="controls">
         <div className="selection-controls"><span className="control-label">当前选中</span><strong>{selectedItem?.name ?? '请选择一件物品'}</strong><button disabled={!selectedItem} onClick={() => rotateSelected(-1)} aria-label="逆时针旋转15度">↶ <span>−15°</span></button><button disabled={!selectedItem} onClick={() => rotateSelected(1)} aria-label="顺时针旋转15度">↷ <span>+15°</span></button></div>
