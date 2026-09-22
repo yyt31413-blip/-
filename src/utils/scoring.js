@@ -1,5 +1,6 @@
 import { DESK_WIDTH, DESK_HEIGHT } from '../data/stationery.js'
 import { scoringConfig } from '../config/scoringConfig.js'
+import { calculateAnalysisScores } from './analysisScoring.js'
 import { getItemCenter, getCenterDistance, getDistanceToDeskCenter, getOccupiedRegion, getOverallBounds, getOverlapArea } from './geometry.js'
 
 const clamp01 = (value) => Math.min(1, Math.max(0, value))
@@ -119,5 +120,6 @@ export function calculateScores(items) {
     regularity: scoreRegularity(items),
     overlap: scoreOverlap(items),
     spatial: scoreSpatial(items),
+    ...calculateAnalysisScores(items),
   }
 }

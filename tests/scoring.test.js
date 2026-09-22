@@ -15,7 +15,10 @@ test('all scores are finite 0–100 integers for the fixed desk and extreme layo
   ]
   for (const layout of layouts) {
     const scores = calculateScores(layout)
-    assert.deepEqual(Object.keys(scores), ['alignment', 'grouping', 'regularity', 'overlap', 'spatial'])
+    assert.deepEqual(Object.keys(scores), [
+      'alignment', 'grouping', 'regularity', 'overlap', 'spatial',
+      'access', 'localStructure', 'angleVariation', 'spacingConsistency', 'zoneSeparation',
+    ])
     for (const value of Object.values(scores)) assert.ok(Number.isInteger(value) && value >= 0 && value <= 100)
   }
 })

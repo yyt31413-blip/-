@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { initialItems } from '../src/data/stationery.js'
 import { getFinalDeskState, doItemsOverlap } from '../src/utils/geometry.js'
 import { calculateScores } from '../src/utils/scoring.js'
+import { metrics } from '../src/data/metrics.js'
 import { createVisualTranslation } from '../src/utils/visualTranslation.js'
 import { normalizeLayers, moveLayerUp, moveLayerDown, bringToFront, sendToBack, getLayerOrder } from '../src/utils/layers.js'
 
@@ -44,7 +45,9 @@ test('layer-only edits preserve geometry, all five scores, and overlap results',
   const beforeOverlap = doItemsOverlap(overlapped[0], overlapped[1])
   const beforeGeometry = overlapped.map(({ id, x, y, width, height, rotation }) => ({ id, x, y, width, height, rotation }))
   const changed = bringToFront(overlapped, 'laptop')
-  assert.deepEqual(calculateScores(changed), beforeScores)
+  const afterScores = calculateScores(changed)
+  for (const { key } of metrics) assert.equal(afterScores[key], beforeScores[key])
+  assert.ok(afterScores.access < beforeScores.access)
   assert.equal(doItemsOverlap(changed[0], changed[1]), beforeOverlap)
   assert.deepEqual(changed.map(({ id, x, y, width, height, rotation }) => ({ id, x, y, width, height, rotation })), beforeGeometry)
   assert.equal(getFinalDeskState(changed).items[0].zIndex, 10)
