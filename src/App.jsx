@@ -3,7 +3,6 @@ import Desk from './components/Desk.jsx'
 import ScoringPanel from './components/ScoringPanel.jsx'
 import ComparisonPreview from './components/ComparisonPreview.jsx'
 import ResultPage from './components/ResultPage.jsx'
-import LayerDebugPanel from './components/LayerDebugPanel.jsx'
 import { initialItems } from './data/stationery.js'
 import { clampItem, getFinalDeskState } from './utils/geometry.js'
 import { calculateScores } from './utils/scoring.js'
@@ -122,7 +121,6 @@ export default function App() {
         <div className="selection-controls"><span className="control-label">当前选中</span><strong>{selectedItem?.name ?? '请选择一件物品'}</strong><button disabled={!selectedItem} onClick={() => rotateSelected(-1)} aria-label="逆时针旋转15度">↶ <span>−15°</span></button><button disabled={!selectedItem} onClick={() => rotateSelected(1)} aria-label="顺时针旋转15度">↷ <span>+15°</span></button></div>
         <div className="action-controls"><button className="text-button" onClick={resetDesk}>重置桌面</button><button className="finish-button" onClick={finishDesk}>完成我的桌面 <span aria-hidden="true">→</span></button></div>
       </div>
-      <LayerDebugPanel items={items} selectedId={selectedId} />
       <ComparisonPreview items={items} translation={translation} />
     </main>
   )

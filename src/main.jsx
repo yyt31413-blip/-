@@ -5,7 +5,6 @@ import './styles.css'
 import './scoring.css'
 import './translation.css'
 import './result.css'
-import './layers.css'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
