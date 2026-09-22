@@ -80,7 +80,7 @@ export default function App() {
       orderId: createOrderId(),
       snapshot,
       scores,
-      classification: classifyOrder(scores),
+      classification: classifyOrder(scores, { items }),
       translation,
     })
     setPage('result')

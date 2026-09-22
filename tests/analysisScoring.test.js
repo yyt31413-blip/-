@@ -7,6 +7,7 @@ import { classifyOrder } from '../src/utils/typeClassification.js'
 import {
   scoreAccess, scoreLocalStructure, scoreAngleVariation,
   scoreSpacingConsistency, scoreZoneSeparation,
+  scoreHighFrequencyVisibility, scoreLocalAlignment,
 } from '../src/utils/analysisScoring.js'
 
 const item = (id, x, y, rotation = 0, category = 'electronics', zIndex = 1) =>
@@ -19,6 +20,8 @@ test('high-frequency objects score higher near the lower center and lose credit 
   assert.ok(scoreAccess([near]) > scoreAccess([far]))
   assert.ok(scoreAccess([near, covering]) < scoreAccess([near, { ...covering, zIndex: 0 }]))
   assert.equal(scoreAccess([item('book', 470, 492, 0, 'reading')]), 0)
+  assert.equal(scoreHighFrequencyVisibility([near, covering]), 0)
+  assert.equal(scoreHighFrequencyVisibility([near, { ...covering, zIndex: 0 }]), 100)
 })
 
 test('two compact local groups beat one connected cluster and scattered objects', () => {
@@ -30,6 +33,8 @@ test('two compact local groups beat one connected cluster and scattered objects'
   const scattered = twoGroups.map((entry, index) => ({ ...entry, x: 20 + index * 180, y: 50 + index % 2 * 430 }))
   assert.ok(scoreLocalStructure(twoGroups) > scoreLocalStructure(oneGroup))
   assert.ok(scoreLocalStructure(twoGroups) > scoreLocalStructure(scattered))
+  const shiftedRows = twoGroups.map((entry, index) => ({ ...entry, y: entry.y + index % 3 * 30 }))
+  assert.ok(scoreLocalAlignment(twoGroups) > scoreLocalAlignment(shiftedRows))
 })
 
 test('angle variation follows circular direction rather than raw degree spread', () => {
@@ -59,13 +64,13 @@ test('category zones need both within-category cohesion and between-category sep
   assert.ok(scoreZoneSeparation(separated) > scoreZoneSeparation(mixed))
 })
 
-test('ten analysis scores are live while results and six-type classification still use five base scores', () => {
+test('ten analysis scores are live while the result page still presents five base scores', () => {
   const scores = calculateScores(initialItems)
   assert.equal(metrics.length, 5)
   assert.equal(debugMetrics.length, 10)
   for (const { key } of debugMetrics) assert.ok(Number.isInteger(scores[key]) && scores[key] >= 0 && scores[key] <= 100)
-  const base = Object.fromEntries(metrics.map(({ key }) => [key, scores[key]]))
-  assert.deepEqual(classifyOrder(scores), classifyOrder(base))
+  const classification = classifyOrder(scores, { items: initialItems })
+  assert.equal(Object.keys(classification.matchScores).length, 6)
 
   const reordered = initialItems.map((entry) => ({ ...entry, zIndex: 11 - entry.zIndex }))
   const reorderedScores = calculateScores(reordered)

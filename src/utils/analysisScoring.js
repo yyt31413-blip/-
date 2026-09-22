@@ -43,8 +43,19 @@ function coveredFraction(item, items, sampleGrid) {
   return covered / (sampleGrid * sampleGrid)
 }
 
+function highFrequencyItems(items, config) {
+  return items.filter((item) => config.highFrequencyIds.includes(item.id))
+}
+
+// Visibility is separate from access so the functional type can weigh it explicitly.
+export function scoreHighFrequencyVisibility(items, config = scoringConfig.access) {
+  const highFrequency = highFrequencyItems(items, config)
+  if (highFrequency.length === 0) return 0
+  return toScore(mean(highFrequency.map((item) => 1 - coveredFraction(item, items, config.sampleGrid))))
+}
+
 export function scoreAccess(items, config = scoringConfig.access) {
-  const highFrequency = items.filter((item) => config.highFrequencyIds.includes(item.id))
+  const highFrequency = highFrequencyItems(items, config)
   if (highFrequency.length === 0) return 0
   const operationCenter = {
     x: DESK_WIDTH * config.operationCenter.xRatio,
@@ -85,6 +96,22 @@ function orientationAgreement(items) {
   )
 }
 
+function groupAlignment(group, tolerance) {
+  return mean(pairs(group).map(([a, b]) => {
+    const first = getItemCenter(a)
+    const second = getItemCenter(b)
+    return proximity(Math.min(Math.abs(first.x - second.x), Math.abs(first.y - second.y)), tolerance)
+  }))
+}
+
+// Used only by the personal-order matching model; the ten public metrics stay unchanged.
+export function scoreLocalAlignment(items, config = scoringConfig.localStructure) {
+  if (items.length === 0) return 0
+  const groups = nearbyGroups(items, config.linkDistance).filter((group) => group.length >= config.minGroupSize)
+  const coverage = groups.reduce((count, group) => count + group.length, 0) / items.length
+  return toScore(coverage * mean(groups.map((group) => groupAlignment(group, config.alignmentTolerance))))
+}
+
 export function scoreLocalStructure(items, config = scoringConfig.localStructure) {
   const groups = nearbyGroups(items, config.linkDistance).filter((group) => group.length >= config.minGroupSize)
   if (groups.length < config.minGroups || groups.length > config.maxGroups) return 0
@@ -92,11 +119,7 @@ export function scoreLocalStructure(items, config = scoringConfig.localStructure
   const groupQuality = mean(groups.map((group) => {
     const groupPairs = pairs(group)
     const cohesion = mean(groupPairs.map(([a, b]) => proximity(getCenterDistance(a, b), config.cohesionDistance)))
-    const alignment = mean(groupPairs.map(([a, b]) => {
-      const first = getItemCenter(a)
-      const second = getItemCenter(b)
-      return proximity(Math.min(Math.abs(first.x - second.x), Math.abs(first.y - second.y)), config.alignmentTolerance)
-    }))
+    const alignment = groupAlignment(group, config.alignmentTolerance)
     const { weights } = config
     return weights.cohesion * cohesion + weights.alignment * alignment + weights.orientation * orientationAgreement(group)
   }))
