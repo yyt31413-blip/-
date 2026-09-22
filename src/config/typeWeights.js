@@ -16,15 +16,16 @@ export const typeWeights = {
     weights: { grouping: 0.40, zoneSeparation: 0.30, localStructure: 0.15, regularity: 0.10, spatial: 0.05 },
   },
   functional: {
-    weights: { access: 0.50, highFrequencyVisibility: 0.20, spatial: 0.15, grouping: 0.10, regularity: 0.05 },
+    // Visibility contributes only when frequently used objects are also within reach.
+    weights: { access: 0.50, reachableVisibility: 0.20, spatial: 0.15, grouping: 0.10, regularity: 0.05 },
   },
   personal: {
-    weights: { localStructure: 0.45, localGlobalContrast: 0.25, spatial: 0.10, localAlignment: 0.10, lowRegularity: 0.10 },
+    weights: { localStructure: 0.35, localGlobalContrast: 0.20, crossCategoryStructure: 0.20, spatial: 0.10, localAlignment: 0.10, lowRegularity: 0.05 },
     guard: { localStructureBelow: 50, maxMatch: 55 },
   },
   dynamic: {
     weights: { overlap: 0.30, angleVariation: 0.25, localStructure: 0.20, lowRegularity: 0.15, spatial: 0.10 },
-    guard: { overlapAtLeast: 70, angleVariationAtLeast: 70, localStructureBelow: 50, maxMatch: 55 },
+    guard: { variationAverageAtLeast: 60, localStructureBelow: 50, maxMatch: 55 },
   },
   lowAttention: {
     strategyTypeIds: ['visual', 'categorical', 'functional', 'personal', 'dynamic'],
@@ -40,5 +41,14 @@ export const typeWeights = {
     },
     randomnessMidpoint: 50,
     randomnessAdjustmentWeight: 0.20, // at most ±10 points around a 50-point midpoint
+  },
+  confidence: {
+    compositeBelow: 8,
+    clearAbove: 15,
+    labels: {
+      composite: '具有明显复合倾向',
+      mixed: '主类型与次级倾向均有体现',
+      clear: '主类型倾向较明显',
+    },
   },
 }

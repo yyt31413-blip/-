@@ -1,6 +1,6 @@
 import { orderTypes } from '../data/orderTypes.js'
 import { typeWeights } from '../config/typeWeights.js'
-import { scoreHighFrequencyVisibility, scoreLocalAlignment } from './analysisScoring.js'
+import { scoreCrossCategoryStructure, scoreHighFrequencyVisibility, scoreLocalAlignment } from './analysisScoring.js'
 
 const clampScore = (value) => Math.min(100, Math.max(0, Number.isFinite(value) ? value : 0))
 const roundScore = (value) => Math.round(clampScore(value))
@@ -26,8 +26,11 @@ function getMatchingFeatures(scores, context) {
   // Explicit context values also let research fixtures test the weights without a desk.
   feature.highFrequencyVisibility = clampScore(context.visibility ??
     (context.items ? scoreHighFrequencyVisibility(context.items) : feature.access))
+  feature.reachableVisibility = feature.highFrequencyVisibility * feature.access / 100
   feature.localAlignment = clampScore(context.localAlignment ??
     (context.items ? scoreLocalAlignment(context.items) : feature.localStructure))
+  feature.crossCategoryStructure = clampScore(context.crossCategoryStructure ??
+    (context.items ? scoreCrossCategoryStructure(context.items) : 0))
   feature.localGlobalContrast = clampScore(calculateLocalGlobalContrast(feature))
   feature.lowAngleVariation = 100 - feature.angleVariation
   feature.lowOverlap = 100 - feature.overlap
@@ -58,8 +61,7 @@ export function calculateTypeMatches(scores, context = {}, config = typeWeights)
     matchScores.personal = Math.min(matchScores.personal, personalGuard.maxMatch)
   }
   const dynamicGuard = config.dynamic.guard
-  if (feature.overlap >= dynamicGuard.overlapAtLeast &&
-      feature.angleVariation >= dynamicGuard.angleVariationAtLeast &&
+  if ((feature.overlap + feature.angleVariation) / 2 >= dynamicGuard.variationAverageAtLeast &&
       feature.localStructure < dynamicGuard.localStructureBelow) {
     matchScores.dynamic = Math.min(matchScores.dynamic, dynamicGuard.maxMatch)
   }
@@ -80,10 +82,22 @@ export function calculateTypeMatches(scores, context = {}, config = typeWeights)
   return matchScores
 }
 
+// A match-score gap expresses relative tendency, never scientific accuracy.
+export function calculateConfidence(primaryScore, secondaryScore, config = typeWeights.confidence) {
+  const gap = Math.max(0, roundScore(primaryScore) - roundScore(secondaryScore))
+  const level = gap < config.compositeBelow ? 'composite' : gap > config.clearAbove ? 'clear' : 'mixed'
+  return { gap, level, label: config.labels[level] }
+}
+
 // Rank all six weighted matches, retaining the exact scores for future research calibration.
 export function classifyOrder(scores, context = {}, config = typeWeights) {
   const matchScores = calculateTypeMatches(scores, context, config)
   const ranked = orderTypes.map((type, index) => ({ type, index, match: matchScores[type.id] }))
     .sort((a, b) => b.match - a.match || a.index - b.index)
-  return { matchScores, primary: ranked[0].type, secondary: ranked[1].type }
+  return {
+    matchScores,
+    primary: ranked[0].type,
+    secondary: ranked[1].type,
+    confidence: calculateConfidence(ranked[0].match, ranked[1].match, config.confidence),
+  }
 }

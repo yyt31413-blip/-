@@ -15,7 +15,7 @@ export default function ResultPage({ record, onBack, onHome, onRestart }) {
       </section>
       <div className="result-keywords"><span>关键词 / KEYWORDS</span><p>{primary.keywords.join('  /  ')}</p></div>
       <p className="result-description">{primary.description}</p>
-      <p className="result-method-note">依据本次桌面几何数据生成的实验性归类，类型参数可随研究数据调整。</p>
+      <p className="result-method-note">{record.classification.confidence.label}。依据本次桌面几何数据生成的实验性归类，类型参数可随研究数据调整。</p>
       <section className="result-analysis" aria-label="五项指标与视觉转译">
         <div className="result-metrics"><div className="result-section-heading"><span>01 / 基础指标</span><small>FIVE BASE INDICATORS</small></div>
           {metrics.map(({ key, english, chinese }) => <div className="result-metric" key={key}><span>{english}<small>{chinese}</small></span><strong>{record.scores[key]}</strong><div className="result-metric-line"><i style={{ width: `${record.scores[key]}%` }} /></div></div>)}

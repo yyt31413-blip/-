@@ -8,6 +8,7 @@ import {
   scoreAccess, scoreLocalStructure, scoreAngleVariation,
   scoreSpacingConsistency, scoreZoneSeparation,
   scoreHighFrequencyVisibility, scoreLocalAlignment,
+  scoreCrossCategoryStructure,
 } from '../src/utils/analysisScoring.js'
 
 const item = (id, x, y, rotation = 0, category = 'electronics', zIndex = 1) =>
@@ -35,6 +36,17 @@ test('two compact local groups beat one connected cluster and scattered objects'
   assert.ok(scoreLocalStructure(twoGroups) > scoreLocalStructure(scattered))
   const shiftedRows = twoGroups.map((entry, index) => ({ ...entry, y: entry.y + index % 3 * 30 }))
   assert.ok(scoreLocalAlignment(twoGroups) > scoreLocalAlignment(shiftedRows))
+})
+
+test('mixed-category local groups distinguish private organization from public categories', () => {
+  const grouped = [
+    item('a', 100, 100), item('b', 170, 100), item('c', 240, 100),
+    item('d', 600, 400), item('e', 670, 400), item('f', 740, 400),
+  ]
+  const privateGroups = grouped.map((entry, index) => ({ ...entry, category: index % 2 ? 'reading' : 'electronics' }))
+  assert.equal(scoreCrossCategoryStructure(grouped), 0)
+  assert.ok(scoreCrossCategoryStructure(privateGroups) > 50)
+  assert.equal(scoreCrossCategoryStructure(grouped.slice(0, 3)), 0)
 })
 
 test('angle variation follows circular direction rather than raw degree spread', () => {

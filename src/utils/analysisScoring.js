@@ -112,6 +112,19 @@ export function scoreLocalAlignment(items, config = scoringConfig.localStructure
   return toScore(coverage * mean(groups.map((group) => groupAlignment(group, config.alignmentTolerance))))
 }
 
+// Private groupings may connect objects from different public categories.
+// Count mixed-category pairs only inside the same nearby local groups.
+export function scoreCrossCategoryStructure(items, config = scoringConfig.localStructure) {
+  if (items.length === 0) return 0
+  const groups = nearbyGroups(items, config.linkDistance).filter((group) => group.length >= config.minGroupSize)
+  if (groups.length < config.minGroups || groups.length > config.maxGroups) return 0
+  const groupPairs = groups.flatMap(pairs)
+  if (groupPairs.length === 0) return 0
+  const mixedPairs = groupPairs.filter(([a, b]) => a.category !== b.category).length
+  const coverage = groups.reduce((count, group) => count + group.length, 0) / items.length
+  return toScore(coverage * mixedPairs / groupPairs.length)
+}
+
 export function scoreLocalStructure(items, config = scoringConfig.localStructure) {
   const groups = nearbyGroups(items, config.linkDistance).filter((group) => group.length >= config.minGroupSize)
   if (groups.length < config.minGroups || groups.length > config.maxGroups) return 0
